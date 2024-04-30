@@ -1,7 +1,10 @@
 pytorch-lightning
-torch~=2.3.0
+torch
 numpy
 pandas
 PyYAML~=6.0.1
 munch~=4.0.0
 wandb~=0.16.6
+torchinfo
+facenet_pytorch
+matplotlib

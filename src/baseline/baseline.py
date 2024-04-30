@@ -5,6 +5,8 @@ import argparse
 import yaml
 import munch
 from pytorch_lightning.callbacks import ModelCheckpoint
+import wandb
+import torchinfo
 
 
 class Imagedataset(torch.utils.data.Dataset):
@@ -45,6 +47,7 @@ class Baseline(pl.LightningModule):
         x, y = batch
         y_hat = self.model(x)
         loss = self.loss(y_hat, y)
+        wandb.log({"train loss": loss})
         return loss
 
     def configure_optimizers(self):
@@ -53,7 +56,7 @@ class Baseline(pl.LightningModule):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_path', type=str)
+    parser.add_argument('--config_path', type=str, default="../../configs/baseline/config.yaml")
 
     args = parser.parse_args()
     with open(args.config_path, 'r') as f:
@@ -62,6 +65,8 @@ if __name__ == '__main__':
 
     x = torch.randn(100, 1)
     y = 3*x + 2 + torch.randn(100, 1)
+
+    wandb.init(project="Deepfake challenge", config=config, group=yamlfile.name, entity="automathon")
 
     train_dataset = Imagedataset(x, y)
     val_dataset = Imagedataset(x, y)

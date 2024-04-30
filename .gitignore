@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 .idea/
 lightning_logs/
+checkpoints/
 # C extensions
 *.so
 

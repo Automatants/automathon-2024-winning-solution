@@ -4,6 +4,7 @@ import torch
 import argparse
 import yaml
 import munch
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 
 class Imagedataset(torch.utils.data.Dataset):
@@ -62,12 +63,23 @@ if __name__ == '__main__':
     x = torch.randn(100, 1)
     y = 3*x + 2 + torch.randn(100, 1)
 
-    dataset = Imagedataset(x, y)
+    train_dataset = Imagedataset(x, y)
+    val_dataset = Imagedataset(x, y)
 
     model = Baseline(config)
-    trainer = pl.Trainer(max_epochs=config.epoch)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=config.batch_size)
 
-    trainer.fit(model, dataloader)
+    checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/baseline/", every_n_train_steps=2, save_top_k=1, save_last=True,
+                                 monitor="val loss", mode="min")
+    checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
+
+    trainer = pl.Trainer(max_epochs=config.epoch,
+                         accelerator="auto",
+                         precision='16-mixed',
+                         callbacks=[checkpoint_callback],)
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size)
+
+    trainer.fit(model, train_loader, val_loader)
 
 

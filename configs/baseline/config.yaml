@@ -1,0 +1,6 @@
+name: baseline
+config:
+  hidden_dim: 128
+  epoch: 10
+  batch_size: 32
+  lr: 0.001

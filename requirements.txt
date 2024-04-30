@@ -1,0 +1,6 @@
+pytorch-lightning
+torch
+numpy
+pandas
+PyYAML
+munch

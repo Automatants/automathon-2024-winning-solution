@@ -7,7 +7,7 @@ lightning_logs/
 checkpoints/
 # C extensions
 *.so
-
+wandb/
 # Distribution / packaging
 .Python
 build/

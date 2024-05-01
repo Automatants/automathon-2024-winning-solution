@@ -39,10 +39,7 @@ if __name__ == '__main__':
             sample_submission.loc[i, 'label'] = 1
             continue
 
-        faces = torch.load(video_path)
-        start_middle = faces.size(1) // 2 - config.n_frames//2
-        faces = faces[:, start_middle:start_middle+config.n_frames]
-        faces = faces.unsqueeze(0).half().to(device)
+        faces = torch.load(video_path)[:, :config.n_frames].unsqueeze(0).half().to(device)
 
         with torch.cuda.amp.autocast():
             with torch.no_grad():

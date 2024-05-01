@@ -1,7 +1,7 @@
 name: cnn3d-vanilla
 config:
-  channels: [3, 32, 64, 128, 256, 512, 256]
-  batch_size: 32
+  channels: [3, 32, 64, 128, 256, 512]
+  batch_size: 64
   lr: 0.0001
   epoch: 10
-  n_frames: 64
+  n_frames: 32

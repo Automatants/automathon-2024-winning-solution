@@ -10,6 +10,7 @@ import os
 
 
 if __name__ == '__main__':
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default="../../configs/CNN3D-vanilla/config.yaml")
     parser.add_argument('--checkpoint_path', type=str)
@@ -21,6 +22,7 @@ if __name__ == '__main__':
 
     model = Baseline.load_from_checkpoint(args.checkpoint_path)
     model.eval()
+    model.to(device)
 
     sample_submission = pd.read_csv("../../data/sample_submission.csv") # id, ...
     datasetcsv = pd.read_csv("../../data/dataset.csv")  # id, file
@@ -36,7 +38,10 @@ if __name__ == '__main__':
         if not os.path.exists(video_path):
             continue
 
-        faces = torch.load(video_path)
+        faces = torch.load(video_path)[:, :config.n_frames].unsqueeze(0).half().to(device)
 
-        y_hat = model(faces)
+        with torch.cuda.amp.autocast():
+            with torch.no_grad():
+                y_hat = model(faces)
+
         sample_submission.loc[i, 'label'] = (y_hat > 0.5).float().item()

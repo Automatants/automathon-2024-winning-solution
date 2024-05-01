@@ -48,8 +48,10 @@ if __name__ == '__main__':
         with torch.cuda.amp.autocast():
             with torch.no_grad():
                 if(args['method'] == 'mean'):
+                    print("Mean inference")
                     y_hat = model(faces.permute(2,1,0,3,4)).mean()
                 else:
+                    print('Default inference')
                     y_hat = model(faces)
 
         sample_submission.loc[i, 'label'] = y_hat.item()

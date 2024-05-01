@@ -1,0 +1,6 @@
+name: cnn2d-resnet
+config:
+  channels: [3, 64, 64, 64, 64, 64, 64, 64, 64, 128]
+  batch_size: 64
+  lr: 0.001
+  epoch: 20

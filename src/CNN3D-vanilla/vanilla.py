@@ -55,14 +55,23 @@ class CNN3d(nn.Module):
         self.pool = nn.MaxPool3d(2)
         self.relu = nn.ReLU()
 
+        self.bn1 = nn.BatchNorm3d(channel_list[1])
+        self.bn2 = nn.BatchNorm3d(channel_list[2])
+        self.bn3 = nn.BatchNorm3d(channel_list[3])
+        self.bn4 = nn.BatchNorm3d(channel_list[4])
+
     def forward(self, x):
-        x = self.relu(self.conv1(x))
+        x = self.bn1(self.conv1(x))
+        x = self.relu(x)
         x = self.pool(x)
-        x = self.relu(self.conv2(x))
+        x = self.bn2(self.conv2(x))
+        x = self.relu(x)
         x = self.pool(x)
-        x = self.relu(self.conv3(x))
+        x = self.bn3(self.conv3(x))
+        x = self.relu(x)
         x = self.pool(x)
-        x = self.relu(self.conv4(x))
+        x = self.bn4(self.conv4(x))
+        x = self.relu(x)
         x = self.pool(x)
         x = self.relu(self.conv5(x))
         x = self.pool(x)
@@ -133,7 +142,7 @@ if __name__ == '__main__':
 
     model = Baseline(config)
 
-    checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/baseline/", every_n_train_steps=2, save_top_k=1, save_last=True,
+    checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/CNN3D-vanilla/", every_n_train_steps=2, save_top_k=1, save_last=True,
                                           monitor="val_loss", mode="min")
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
 

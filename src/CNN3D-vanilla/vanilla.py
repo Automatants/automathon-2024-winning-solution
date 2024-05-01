@@ -40,7 +40,11 @@ class VideoDataset(torch.utils.data.Dataset):
         start_middle = x.shape[1] // 2 - self.config.n_frames // 2
         x = x[:, start_middle:start_middle + self.config.n_frames]
         y = self.labels[idx]
-        print(x.shape)
+
+        if x.shape[1] != self.config.n_frames:
+            print(x.shape[1], filename)
+            return self.__getitem__((idx+1) % len(self))
+
         return x.float()/255.0, y
 
 

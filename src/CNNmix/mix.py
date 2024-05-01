@@ -37,9 +37,16 @@ class VideoDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         filename = self.filename[idx]
-        x = torch.load(f'{self.folder_path}/{filename}')[:, :config.n_frames]
+        x = torch.load(f'{self.folder_path}/{filename}')
+        start_middle = x.shape[1] // 2 - self.config.n_frames // 2
+        x = x[:, start_middle:start_middle + self.config.n_frames]
         y = self.labels[idx]
-        return x.float()/255, y
+
+        if x.shape[1] != self.config.n_frames:
+            print(x.shape[1], filename)
+            return self.__getitem__((idx+1) % len(self))
+
+        return x.float()/255.0, y
 
 
 class CNN3d(nn.Module):

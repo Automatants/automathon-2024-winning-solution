@@ -48,7 +48,7 @@ if __name__ == '__main__':
             with torch.no_grad():
                 y_hat = model(faces)
 
-        sample_submission.loc[i, 'label'] = (y_hat > 0.0).float().item()
+        sample_submission.loc[i, 'label'] = y_hat.item()
         print(f"{i}, {video_id}, {y_hat.item()}")
 
     sample_submission.to_csv("submission.csv", index=False)

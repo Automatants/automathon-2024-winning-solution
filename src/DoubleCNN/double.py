@@ -62,7 +62,8 @@ class PredictionHead(nn.Module):
     def __init__(self):
         super(PredictionHead, self).__init__()
         self.linear1 = nn.LazyLinear(256)
-        self.linear2 = nn.Linear(256, 1)
+        self.linear2 = nn.Linear(256, 256)
+        self.linear3 = nn.Linear(256, 1)
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 
@@ -74,7 +75,8 @@ class PredictionHead(nn.Module):
         x = torch.cat([x, xprime], dim=1)
 
         x = self.relu(self.linear1(x))
-        x = self.linear2(x)
+        x = self.relu(self.linear2(x))
+        x = self.linear3(x)
         return x.squeeze()
 
 
@@ -160,11 +162,9 @@ if __name__ == '__main__':
                          logger=logger,)
 
     train_dataset = VideoDataset(config, "/raid/home/automathon_2024/account24/data/metadata.json")
-    val_dataset = VideoDataset(config, "/raid/home/automathon_2024/account24/data/metadata_info.json")
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=2)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, num_workers=2)
 
-    trainer.fit(model, train_loader, val_loader)
+    trainer.fit(model, train_loader)
 
 

@@ -40,6 +40,7 @@ class VideoDataset(torch.utils.data.Dataset):
         start_middle = x.shape[1] // 2 - self.config.n_frames // 2
         x = x[:, start_middle:start_middle + self.config.n_frames]
         y = self.labels[idx]
+        print(len(x))
         return x.float()/255.0, y
 
 
@@ -81,13 +82,15 @@ class CNN3d(nn.Module):
 class PredictionHead(nn.Module):
     def __init__(self, in_features):
         super(PredictionHead, self).__init__()
-        self.linear1 = nn.Linear(in_features, 1)
-        # self.relu = nn.ReLU()
+        self.linear1 = nn.Linear(in_features, 256)
+        self.linear2 = nn.Linear(256, 1)
+        self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 
     def forward(self, x):
         x = self.flatten(x)
-        x = self.linear1(x)
+        x = self.relu(self.linear1(x))
+        x = self.linear2(x)
         return x.squeeze()
 
 

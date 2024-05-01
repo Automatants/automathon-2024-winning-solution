@@ -47,9 +47,9 @@ class VideoDataset(torch.utils.data.Dataset):
             print(x.shape[1], filename)
             return self.__getitem__((idx+1) % len(self))
 
-        x_prime1 = torch.mean(x[:, :, 1, :, :] - x[:, :, 0, :, :], dim=0)
-        x_prime2 = torch.mean(x[:, :, 2, :, :] - x[:, :, 1, :, :], dim=0)
-        x_prime3 = torch.mean(x[:, :, 3, :, :] - x[:, :, 2, :, :], dim=0)
+        x_prime1 = torch.mean(x[:, 1, :, :] - x[:, 0, :, :], dim=0)
+        x_prime2 = torch.mean(x[:, 2, :, :] - x[:, 1, :, :], dim=0)
+        x_prime3 = torch.mean(x[:, 3, :, :] - x[:, 2, :, :], dim=0)
 
         xprime = torch.stack([x_prime1, x_prime2, x_prime3], dim=1)
 

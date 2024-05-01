@@ -108,7 +108,7 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
 
-        self.model = efficientnet_b0(pretrained=True)
+        self.model = efficientnet_b3(pretrained=True)
         self.model = nn.Sequential(*list(self.model.children())[:-1])
         #self.model = CNN3d(config.channels)
         self.head = PredictionHead(1280)

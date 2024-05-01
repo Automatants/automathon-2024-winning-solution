@@ -66,9 +66,12 @@ class CNN3d(nn.Module):
         self.bn4 = nn.BatchNorm3d(channel_list[4])
 
     def forward(self, x):
+        print("1",x.shape,"\n")
         x = self.bn1(self.conv1(x))
+        print("2", x.shape,"\n")
         x = self.relu(x)
         x = self.pool(x)
+        print("3", x.shape,"\n")
         x = self.bn2(self.conv2(x))
         x = self.relu(x)
         x = self.pool(x)
@@ -79,7 +82,7 @@ class CNN3d(nn.Module):
         x = self.relu(x)
         x = self.pool(x)
         x = self.relu(self.conv5(x))
-        print(x.shape)
+        print("4", x.shape, "\n")
         return x
 
 

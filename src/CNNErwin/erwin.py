@@ -9,7 +9,9 @@ import wandb
 import torchinfo
 import os
 import json
+from model import EfficientNet3D
 
+from torchsummary import summary
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):
@@ -137,6 +139,11 @@ class Baseline(pl.LightningModule):
 
 
 if __name__ == '__main__':
+
+    model = EfficientNet3D.from_name("efficientnet-b0", override_params={'num_classes': 2}, in_channels=1)
+
+    summary(model, input_size=(1, 224, 224, 224))
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default="/raid/home/automathon_2024/account24/erwin/automathon-2024/configs/CNNErwin/config.yaml")
 

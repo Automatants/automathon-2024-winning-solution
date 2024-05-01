@@ -36,9 +36,7 @@ class VideoDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         filename = self.filename[idx]
-        x = torch.load(f'{self.folder_path}/{filename}')
-        start_middle = x.shape[1] // 2 - self.config.n_frames // 2
-        x = x[:, start_middle:start_middle + self.config.n_frames]
+        x = torch.load(f'{self.folder_path}/{filename}')[:, :config.n_frames]
         y = self.labels[idx]
         return x, y
 
@@ -134,7 +132,7 @@ if __name__ == '__main__':
     model = Baseline(config)
 
     checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/baseline/", every_n_train_steps=2, save_top_k=1, save_last=True,
-                                          monitor="val_loss", mode="min")
+                                 monitor="val_loss", mode="min")
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
 
     trainer = pl.Trainer(max_epochs=config.epoch,

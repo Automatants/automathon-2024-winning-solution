@@ -11,6 +11,7 @@ import os
 import json
 
 from torchvision.models import efficientnet_b3
+import torchvision.transforms as transforms
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):
@@ -114,13 +115,31 @@ class Baseline(pl.LightningModule):
         #self.model = CNN3d(config.channels)
         self.head = PredictionHead()
         self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(0.3))
+         # Data augmentation transforms
+        self.train_transforms = transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+            transforms.RandomRotation(degrees=15),
+            transforms.RandomResizedCrop(size=(128, 128), scale=(0.8, 1.0)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+        self.val_transforms = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
 
     def forward(self, x):
         x = x[:,:,0,:,:]
+        
         return self.head(self.model(x))
 
     def training_step(self, batch, batch_idx):
         x, y = batch
+        x = self.train_transforms(x)
         y_hat = self(x)
         loss = self.loss(y_hat, y.float())
 
@@ -129,6 +148,7 @@ class Baseline(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
+        x = self.val_transforms(x)
         y_hat = self(x)
         loss = self.loss(y_hat, y.float())
 

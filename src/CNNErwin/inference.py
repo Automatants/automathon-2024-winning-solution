@@ -14,7 +14,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default="/raid/home/automathon_2024/account24/erwin/automathon-2024/configs/CNNErwin/config.yaml")
     parser.add_argument('--checkpoint_path', type=str)
-    parser.add_argument('--method', type=str)
+    parser.add_argument('--method', type=str, default="none")
     args = parser.parse_args()
 
     with open(args.config_path, 'r') as f:

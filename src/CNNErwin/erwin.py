@@ -10,7 +10,7 @@ import torchinfo
 import os
 import json
 
-from torchvision.models import efficientnet_b0
+from torchvision.models import efficientnet_b3
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):

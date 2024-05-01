@@ -134,29 +134,29 @@ if __name__ == '__main__':
     config = yamlfile.config
 
 
-    model = CNN3d(config.channels)
-    torchinfo.summary(model, (1, 3, config.n_frames, 128, 128))
+    # model = CNN3d(config.channels)
+    # torchinfo.summary(model, (1, 3, config.n_frames, 128, 128))
 
-    # logger = pl.loggers.WandbLogger(project="Deepfake challenge", config=config, group=yamlfile.name, entity="automathon")
-    #
-    # model = Baseline(config)
-    #
-    # checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/CNN3D-vanilla/", every_n_train_steps=2, save_top_k=1, save_last=True,
-    #                                       monitor="val_loss", mode="min")
-    # checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
-    #
-    # trainer = pl.Trainer(max_epochs=config.epoch,
-    #                      accelerator="auto",
-    #                      precision='16-mixed',
-    #                      callbacks=[checkpoint_callback],
-    #                      logger=logger,)
-    #
-    # train_dataset = VideoDataset(config, "../../data/raw/metadata.json")
-    # val_dataset = VideoDataset(config, "../../data/metadata.json")
-    #
-    # train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=2)
-    # val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, num_workers=2)
-    #
-    # trainer.fit(model, train_loader, val_loader)
+    logger = pl.loggers.WandbLogger(project="Deepfake challenge", config=config, group=yamlfile.name, entity="automathon")
+
+    model = Baseline(config)
+
+    checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/CNN3D-vanilla/", every_n_train_steps=2, save_top_k=1, save_last=True,
+                                          monitor="val_loss", mode="min")
+    checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
+
+    trainer = pl.Trainer(max_epochs=config.epoch,
+                         accelerator="auto",
+                         precision='16-mixed',
+                         callbacks=[checkpoint_callback],
+                         logger=logger,)
+
+    train_dataset = VideoDataset(config, "../../data/raw/metadata.json")
+    val_dataset = VideoDataset(config, "../../data/metadata.json")
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=2)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, num_workers=2)
+
+    trainer.fit(model, train_loader, val_loader)
 
 

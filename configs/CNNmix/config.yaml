@@ -1,0 +1,7 @@
+name: cnnmix
+config:
+  channels: [3, 64, 128, 256]
+  batch_size: 64
+  lr: 0.0001
+  epoch: 10
+  n_frames: 32

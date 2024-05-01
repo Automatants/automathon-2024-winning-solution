@@ -70,8 +70,8 @@ class CNN3d(nn.Module):
 class PredictionHead(nn.Module):
     def __init__(self, in_features):
         super(PredictionHead, self).__init__()
-        self.linear1 = nn.Linear(in_features, in_features//8)
-        self.linear2 = nn.Linear(in_features//8, 1)
+        self.linear1 = nn.Linear(in_features, in_features//4)
+        self.linear2 = nn.Linear(in_features//4, 1)
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 

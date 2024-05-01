@@ -93,6 +93,7 @@ class PredictionHead(nn.Module):
         self.flatten = nn.Flatten()
 
     def forward(self, x):
+        print("shape", x.shape)
         x = self.flatten(x)
         x = self.relu(self.linear1(x))
         x = self.linear2(x)
@@ -103,9 +104,10 @@ class Baseline(pl.LightningModule):
     def __init__(self, config):
         super(Baseline, self).__init__()
         self.config = config
-        self.model = efficientnet.model_from_name('efficientnet-b7', num_classes=1)
-        #self.model = CNN3d(config.channels)
-        #self.head = PredictionHead(config.channels[-1] * 8 * 8)
+
+        #self.model = efficientnet.model_from_name('efficientnet-b0', num_classes=1)
+        self.model = CNN3d(config.channels)
+        self.head = PredictionHead(config.channels[-1] * 8 * 8)
         self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(0.3))
 
     def forward(self, x):

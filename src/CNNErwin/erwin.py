@@ -9,6 +9,7 @@ import wandb
 import torchinfo
 import os
 import json
+from torchvision.models import efficientnet
 
 
 class VideoDataset(torch.utils.data.Dataset):

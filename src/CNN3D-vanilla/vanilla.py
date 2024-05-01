@@ -59,7 +59,7 @@ class CNN3d(nn.Module):
         x = self.pool(x)
         x = self.relu(self.conv4(x))
         x = self.pool(x)
-        x = self.relu(self.conv5(x))
+        x = self.conv5(x)
         x = self.pool(x)
         return x
 
@@ -67,11 +67,15 @@ class CNN3d(nn.Module):
 class PredictionHead(nn.Module):
     def __init__(self, in_features):
         super(PredictionHead, self).__init__()
-        self.linear1 = nn.Linear(in_features, 1)
+        self.linear1 = nn.Linear(in_features, in_features)
+        self.linear2 = nn.Linear(in_features, 1)
+        self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 
     def forward(self, x):
-        x = self.linear1(self.flatten(x))
+        x = self.flatten(x)
+        x = self.relu(self.linear1(x))
+        x = self.linear2(x)
         return x.squeeze()
 
 
@@ -120,10 +124,7 @@ if __name__ == '__main__':
     # model = CNN3d(config.channels)
     # torchinfo.summary(model, (1, 3, config.n_frames, 128, 128))
 
-
-    wandb.init(project="Deepfake challenge", config=config, group=yamlfile.name, entity="automathon")
-    logger = pl.loggers.WandbLogger()
-
+    logger = pl.loggers.WandbLogger(project="Deepfake challenge", config=config, group=yamlfile.name, entity="automathon")
 
     model = Baseline(config)
 
@@ -140,8 +141,8 @@ if __name__ == '__main__':
     train_dataset = VideoDataset(config, "../../data/raw/metadata.json")
     val_dataset = VideoDataset(config, "../../data/metadata.json")
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=4)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=2)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, num_workers=2)
 
     trainer.fit(model, train_loader, val_loader)
 

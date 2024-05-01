@@ -109,7 +109,7 @@ class Baseline(pl.LightningModule):
         self.config = config
 
         self.model = efficientnet_b0(pretrained=True)
-        self.model = nn.Sequential(*list(model.children())[:-1])
+        self.model = nn.Sequential(*list(self.model.children())[:-1])
         #self.model = CNN3d(config.channels)
         self.head = PredictionHead(1280)
         self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(0.3))

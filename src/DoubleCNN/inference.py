@@ -62,7 +62,7 @@ if __name__ == '__main__':
                     y_hat = model(faces.permute(2,1,0,3,4)).mean()
                 else:
                     print('Default inference')
-                    y_hat = model(faces)
+                    y_hat = model(faces, xprime)
 
         sample_submission.loc[i, 'label'] = y_hat.item()
         print(f"{i}, {video_id}, {y_hat.item()}")

@@ -20,7 +20,7 @@ if __name__ == '__main__':
         yamlfile = munch.munchify(yaml.safe_load(f))
     config = yamlfile.config
 
-    model = Baseline.load_from_checkpoint(args.checkpoint_path)
+    model = Baseline.load_from_checkpoint(args.checkpoint_path, config=config)
     model.eval()
     model.to(device)
 
@@ -36,6 +36,7 @@ if __name__ == '__main__':
         video_path = f"../../data/processed/{file}"
 
         if not os.path.exists(video_path):
+            sample_submission.loc[i, 'label'] = 1
             continue
 
         faces = torch.load(video_path)[:, :config.n_frames].unsqueeze(0).half().to(device)
@@ -44,4 +45,7 @@ if __name__ == '__main__':
             with torch.no_grad():
                 y_hat = model(faces)
 
-        sample_submission.loc[i, 'label'] = (y_hat > 0.5).float().item()
+        sample_submission.loc[i, 'label'] = (y_hat > 0.0).float().item()
+        print(f"{i}, {video_id}, {y_hat.item()}")
+
+    sample_submission.to_csv("submission.csv", index=False)

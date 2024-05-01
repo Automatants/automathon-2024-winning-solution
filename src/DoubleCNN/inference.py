@@ -53,7 +53,7 @@ if __name__ == '__main__':
         xprime = torch.stack([x_prime1, x_prime2, x_prime3], dim=0)
 
         faces = faces.unsqueeze(0).half().to(device) / 255.0
-        xprime = xprime.unsqueeze(0).half().to(device)
+        xprime = xprime.unsqueeze(0).half().to(device) / 255.0
 
         with torch.cuda.amp.autocast():
             with torch.no_grad():

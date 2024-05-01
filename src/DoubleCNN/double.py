@@ -55,7 +55,7 @@ class VideoDataset(torch.utils.data.Dataset):
 
         xprime = torch.stack([x_prime1, x_prime2, x_prime3], dim=0)
 
-        return x/255.0, xprime, y
+        return x/255.0, xprime/255.0, y
 
 
 class PredictionHead(nn.Module):
@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
     model = Baseline(config)
 
-    checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/DoubleCNN/", every_n_epochs=1, save_top_k=-1)
+    checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/DoubleCNN/", save_on_train_epoch_end=True)
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
 
     trainer = pl.Trainer(max_epochs=config.epoch,

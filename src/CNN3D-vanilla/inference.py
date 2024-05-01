@@ -36,7 +36,7 @@ if __name__ == '__main__':
         video_path = f"../../data/processed/{file}"
 
         if not os.path.exists(video_path):
-            sample_submission.loc[i, 'label'] = 1
+            # sample_submission.loc[i, 'label'] = 1
             continue
 
         faces = torch.load(video_path)

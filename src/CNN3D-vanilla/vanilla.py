@@ -40,7 +40,7 @@ class VideoDataset(torch.utils.data.Dataset):
         start_middle = x.shape[1] // 2 - self.config.n_frames // 2
         x = x[:, start_middle:start_middle + self.config.n_frames]
         y = self.labels[idx]
-        return x, y
+        return x/255.0, y
 
 
 class CNN3d(nn.Module):
@@ -74,6 +74,7 @@ class CNN3d(nn.Module):
         x = self.relu(x)
         x = self.pool(x)
         x = self.relu(self.conv5(x))
+        print(x.shape)
         return x
 
 

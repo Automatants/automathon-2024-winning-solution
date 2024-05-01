@@ -176,11 +176,9 @@ if __name__ == '__main__':
                          logger=logger,)
 
     train_dataset = VideoDataset(config, "/raid/home/automathon_2024/account24/data/metadata.json")
-    val_dataset = VideoDataset(config, "/raid/home/automathon_2024/account24/data/metadata_info.json")
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=2)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, num_workers=2)
 
-    trainer.fit(model, train_loader, val_loader)
+    trainer.fit(model, train_loader)
 
 

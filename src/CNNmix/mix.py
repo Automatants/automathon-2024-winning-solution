@@ -18,7 +18,6 @@ class VideoDataset(torch.utils.data.Dataset):
         metadata = json.load(open(metadata_path))
         self.filename = [f"{k[:-4]}.pt" for k in metadata.keys()]
 
-        # remove files that do not exist
         filelist = []
         for f in self.filename:
             if os.path.exists(f"{self.folder_path}/{f}"):

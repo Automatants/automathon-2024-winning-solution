@@ -14,6 +14,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default="/raid/home/automathon_2024/account24/erwin/automathon-2024/configs/CNNErwin/config.yaml")
     parser.add_argument('--checkpoint_path', type=str)
+    parser.add_argument('--method', type=str)
     args = parser.parse_args()
 
     with open(args.config_path, 'r') as f:
@@ -46,7 +47,10 @@ if __name__ == '__main__':
 
         with torch.cuda.amp.autocast():
             with torch.no_grad():
-                y_hat = model(faces)
+                if(args['method'] == 'mean'):
+                    y_hat = model(faces.permute(2,1,0,3,4)).mean()
+                else:
+                    y_hat = model(faces)
 
         sample_submission.loc[i, 'label'] = y_hat.item()
         print(f"{i}, {video_id}, {y_hat.item()}")

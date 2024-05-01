@@ -1,0 +1,7 @@
+name: cnnerwin
+config:
+  channels: [3, 32, 64, 128, 256, 512]
+  batch_size: 64
+  lr: 0.0001
+  epoch: 50
+  n_frames: 16

@@ -44,7 +44,7 @@ if __name__ == '__main__':
         start_middle = faces.size(1) // 2 - config.n_frames//2
         faces = faces[:, start_middle:start_middle+config.n_frames]
 
-        x = faces
+        x = faces.float()
 
         x_prime1 = torch.mean(x[:, 1, :, :] - x[:, 0, :, :], dim=0)
         x_prime2 = torch.mean(x[:, 2, :, :] - x[:, 1, :, :], dim=0)

@@ -39,7 +39,7 @@ class VideoDataset(torch.utils.data.Dataset):
         filename = self.filename[idx]
         x = torch.load(f'{self.folder_path}/{filename}')[:, :config.n_frames]
         y = self.labels[idx]
-        return x, y
+        return x.float()/255, y
 
 
 class CNN3d(nn.Module):
@@ -98,11 +98,12 @@ class CNN3d(nn.Module):
         return x
 
 
+
 class PredictionHead(nn.Module):
     def __init__(self, in_features):
         super(PredictionHead, self).__init__()
-        self.linear1 = nn.Linear(in_features, in_features//4)
-        self.linear2 = nn.Linear(in_features//4, 1)
+        self.linear1 = nn.Linear(in_features, 256)
+        self.linear2 = nn.Linear(256, 1)
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 

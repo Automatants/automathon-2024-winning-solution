@@ -81,7 +81,7 @@ class PredictionHead(nn.Module):
 class EfficientNetPrime(nn.Module):
     def __init__(self):
         super(EfficientNetPrime, self).__init__()
-        self.model = efficientnet_b0(pretrained=True)
+        self.model = efficientnet_b3(pretrained=True)
         self.model = nn.Sequential(*list(self.model.children())[:-1])
 
     def forward(self, x):

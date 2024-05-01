@@ -12,7 +12,7 @@ import os
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_path', type=str, default="/raid/home/automathon_2024/account24/erwin/automathon-2024/configs/CNNErwin/config.yaml")
+    parser.add_argument('--config_path', type=str, default="../../configs/CNNErwin/config.yaml")
     parser.add_argument('--checkpoint_path', type=str)
     parser.add_argument('--method', type=str, default="none")
     args = parser.parse_args()
@@ -43,7 +43,17 @@ if __name__ == '__main__':
         faces = torch.load(video_path)
         start_middle = faces.size(1) // 2 - config.n_frames//2
         faces = faces[:, start_middle:start_middle+config.n_frames]
+
+        x = faces
+
+        x_prime1 = torch.mean(x[:, 1, :, :] - x[:, 0, :, :], dim=0)
+        x_prime2 = torch.mean(x[:, 2, :, :] - x[:, 1, :, :], dim=0)
+        x_prime3 = torch.mean(x[:, 3, :, :] - x[:, 2, :, :], dim=0)
+
+        xprime = torch.stack([x_prime1, x_prime2, x_prime3], dim=0)
+
         faces = faces.unsqueeze(0).half().to(device) / 255.0
+        xprime = xprime.unsqueeze(0).half().to(device)
 
         with torch.cuda.amp.autocast():
             with torch.no_grad():
@@ -57,4 +67,4 @@ if __name__ == '__main__':
         sample_submission.loc[i, 'label'] = y_hat.item()
         print(f"{i}, {video_id}, {y_hat.item()}")
 
-    sample_submission.to_csv("/raid/home/automathon_2024/account24/erwin/submission.csv", index=False)
+    sample_submission.to_csv("submission.csv", index=False)

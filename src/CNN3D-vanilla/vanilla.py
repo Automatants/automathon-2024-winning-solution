@@ -81,15 +81,13 @@ class CNN3d(nn.Module):
 class PredictionHead(nn.Module):
     def __init__(self, in_features):
         super(PredictionHead, self).__init__()
-        self.linear1 = nn.Linear(in_features, in_features//8)
-        self.linear2 = nn.Linear(in_features//8, 1)
-        self.relu = nn.ReLU()
+        self.linear1 = nn.Linear(in_features, 1)
+        # self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 
     def forward(self, x):
         x = self.flatten(x)
-        x = self.relu(self.linear1(x))
-        x = self.linear2(x)
+        x = self.linear1(x)
         return x.squeeze()
 
 

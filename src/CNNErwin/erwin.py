@@ -159,7 +159,7 @@ if __name__ == '__main__':
 
     model = Baseline(config)
 
-    checkpoint_callback = ModelCheckpoint(dirpath="/raid/home/automathon_2024/account24/erwin/automathon-2024/checkpoints/CNNErwin/", every_n_epochs=1, save_top_k=-1)
+    checkpoint_callback = ModelCheckpoint(dirpath="/raid/home/automathon_2024/account24/erwin/automathon-2024/checkpoints/CNNErwin/", save_top_k=-1, monitor="train_loss")
                                           #every_n_train_steps=2, save_top_k=1, save_last=True, 
                                           #monitor="val_loss", mode="min")
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name

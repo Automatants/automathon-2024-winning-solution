@@ -10,7 +10,7 @@ import torchinfo
 import os
 import json
 
-from torchvision.models import efficientnet_b3
+from torchvision.models import efficientnet_b7
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):
@@ -108,7 +108,7 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
 
-        self.model = efficientnet_b3(pretrained=True)
+        self.model = efficientnet_b7(pretrained=True)
         self.model = nn.Sequential(*list(self.model.children())[:-1])
         #self.model = CNN3d(config.channels)
         self.head = PredictionHead()

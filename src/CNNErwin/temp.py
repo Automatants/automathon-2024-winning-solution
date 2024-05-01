@@ -16,7 +16,8 @@ from torchvision.models import efficientnet_b0
 
 if __name__ == '__main__':
 
-    model = efficientnet_b0(pretrained=True) 
+    model = efficientnet_b0(pretrained=True)
+    model = nn.Sequential(*list(model.children())[:-1])
     x = torch.randn(64, 3, 16, 128, 128)
     print(x.shape)
     x2 = x[:,:,0,:,:]

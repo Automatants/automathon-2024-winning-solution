@@ -6,7 +6,6 @@ import yaml
 import munch
 from pytorch_lightning.callbacks import ModelCheckpoint
 import wandb
-import torchinfo
 
 
 class Imagedataset(torch.utils.data.Dataset):

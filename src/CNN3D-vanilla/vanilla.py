@@ -25,7 +25,10 @@ class VideoDataset(torch.utils.data.Dataset):
 
         self.filename = filelist
 
-        self.labels = [0 if metadata[v] == 'fake' else 1 for v in metadata.keys()]
+        self.labels = [1 if metadata[v] == 'fake' else 0 for v in metadata.keys()]
+
+        print(sum(self.labels)/len(self.labels))
+
         self.config = config
 
     def __len__(self):

@@ -10,7 +10,7 @@ import torchinfo
 import os
 import json
 
-from efficientnet_pytorch import EfficientNet
+from torchvision.models import efficientnet_b0
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):
@@ -108,10 +108,10 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
 
-        self.model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1) 
-
+        self.model = efficientnet_b0(pretrained=True)
+        self.model = nn.Sequential(*list(model.children())[:-1])
         #self.model = CNN3d(config.channels)
-        #self.head = PredictionHead(config.channels[-1] * 8 * 8)
+        self.head = PredictionHead(1280)
         self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(0.3))
 
     def forward(self, x):
@@ -141,7 +141,7 @@ class Baseline(pl.LightningModule):
 
 if __name__ == '__main__':
 
-    #model = EfficientNet3D.from_name("efficientnet-b0", override_params={'num_classes': 2}, in_channels=1)
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_path', type=str, default="/raid/home/automathon_2024/account24/erwin/automathon-2024/configs/CNNErwin/config.yaml")

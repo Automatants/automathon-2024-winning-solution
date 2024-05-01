@@ -116,7 +116,7 @@ class Baseline(pl.LightningModule):
 
     def forward(self, x):
         x = x[:,:,0,:,:]
-        return self.model(x)
+        return self.head(self.model(x))
 
     def training_step(self, batch, batch_idx):
         x, y = batch

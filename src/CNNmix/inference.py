@@ -12,7 +12,7 @@ import os
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_path', type=str, default="../../configs/CNN3D-vanilla/config.yaml")
+    parser.add_argument('--config_path', type=str, default="../../configs/CNNmix/config.yaml")
     parser.add_argument('--checkpoint_path', type=str)
     args = parser.parse_args()
 

@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
         with torch.cuda.amp.autocast():
             with torch.no_grad():
-                if(args['method'] == 'mean'):
+                if(args.method == 'mean'):
                     print("Mean inference")
                     y_hat = model(faces.permute(2,1,0,3,4)).mean()
                 else:

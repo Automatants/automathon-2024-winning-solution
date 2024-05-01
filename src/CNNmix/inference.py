@@ -39,7 +39,7 @@ if __name__ == '__main__':
             sample_submission.loc[i, 'label'] = 1
             continue
 
-        faces = torch.load(video_path)[:, :config.n_frames].unsqueeze(0).half().to(device)
+        faces = torch.load(video_path)[:, :config.n_frames].unsqueeze(0).half().to(device) / 255.0
 
         with torch.cuda.amp.autocast():
             with torch.no_grad():

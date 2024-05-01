@@ -21,5 +21,5 @@ if __name__ == '__main__':
     print(x.shape)
     x2 = x[:,:,0,:,:]
     print(x2.shape)
-    x3 = model(x)
+    x3 = model(x2)
     print(x3.shape)

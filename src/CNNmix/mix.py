@@ -118,7 +118,7 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
         self.model = CNN3d(config.channels, config)
-        self.head = PredictionHead(config.channels[-1] * 4 * 2 * 2)
+        self.head = PredictionHead(config.channels[-1] * 2 * 2 * 2)
         self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(0.6))
 
     def forward(self, x):

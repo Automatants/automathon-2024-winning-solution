@@ -47,6 +47,7 @@ class CNN3d(nn.Module):
         self.conv3 = nn.Conv3d(channel_list[2], channel_list[3], kernel_size=3, padding=1)
         self.conv4 = nn.Conv3d(channel_list[3], channel_list[4], kernel_size=3, padding=1)
         self.conv5 = nn.Conv3d(channel_list[4], channel_list[5], kernel_size=3, padding=1)
+        self.conv6 = nn.Conv3d(channel_list[5], channel_list[6], kernel_size=3, padding=1)
         self.pool = nn.MaxPool3d(2)
         self.relu = nn.ReLU()
 
@@ -59,7 +60,9 @@ class CNN3d(nn.Module):
         x = self.pool(x)
         x = self.relu(self.conv4(x))
         x = self.pool(x)
-        x = self.conv5(x)
+        x = self.relu(self.conv5(x))
+        x = self.pool(x)
+        x = self.conv6(x)
         x = self.pool(x)
         return x
 
@@ -67,8 +70,8 @@ class CNN3d(nn.Module):
 class PredictionHead(nn.Module):
     def __init__(self, in_features):
         super(PredictionHead, self).__init__()
-        self.linear1 = nn.Linear(in_features, in_features)
-        self.linear2 = nn.Linear(in_features, 1)
+        self.linear1 = nn.Linear(in_features, in_features//8)
+        self.linear2 = nn.Linear(in_features//8, 1)
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 
@@ -84,7 +87,7 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
         self.model = CNN3d(config.channels)
-        self.head = PredictionHead(config.channels[-1] * 4 * 4)
+        self.head = PredictionHead(config.channels[-1] * 2 * 2)
         self.loss = nn.BCEWithLogitsLoss()
 
     def forward(self, x):

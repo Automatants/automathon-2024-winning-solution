@@ -1,7 +1,7 @@
 import argparse
 import torch
 import torch.nn as nn
-from vanilla import Baseline
+from erwin import Baseline
 import yaml
 import munch
 import json

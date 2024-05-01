@@ -32,7 +32,7 @@ class VideoDataset(torch.utils.data.Dataset):
         return len(self.filename)
 
     def __getitem__(self, idx):
-        filename = self.filelist[idx]
+        filename = self.filename[idx]
         x = torch.load(f'{self.folder_path}/{filename}')[:, :config.n_frames]
         y = self.labels[idx]
         return x, y
@@ -46,6 +46,7 @@ class CNN3d(nn.Module):
         self.conv2 = nn.Conv3d(channel_list[1], channel_list[2], kernel_size=3, padding=1)
         self.conv3 = nn.Conv3d(channel_list[2], channel_list[3], kernel_size=3, padding=1)
         self.conv4 = nn.Conv3d(channel_list[3], channel_list[4], kernel_size=3, padding=1)
+        self.conv5 = nn.Conv3d(channel_list[4], channel_list[5], kernel_size=3, padding=1)
         self.pool = nn.MaxPool3d(2)
         self.relu = nn.ReLU()
 
@@ -58,6 +59,8 @@ class CNN3d(nn.Module):
         x = self.pool(x)
         x = self.relu(self.conv4(x))
         x = self.pool(x)
+        x = self.relu(self.conv5(x))
+        x = self.pool(x)
         return x
 
 
@@ -69,7 +72,7 @@ class PredictionHead(nn.Module):
 
     def forward(self, x):
         x = self.linear1(self.flatten(x))
-        return torch.sigmoid(x)
+        return x.squeeze()
 
 
 class Baseline(pl.LightningModule):
@@ -77,17 +80,27 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
         self.model = CNN3d(config.channels)
-        self.head = PredictionHead(config.channels[-1] * 2 * 8 * 8)
-        self.loss = nn.BCELoss()
+        self.head = PredictionHead(config.channels[-1] * 4 * 4)
+        self.loss = nn.BCEWithLogitsLoss()
 
     def forward(self, x):
-        return self.model(x)
+        return self.head(self.model(x))
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        y_hat = self.model(x)
-        loss = self.loss(y_hat, y)
-        # wandb.log({"train loss": loss})
+        y_hat = self(x)
+        loss = self.loss(y_hat, y.float())
+
+        self.log("train_loss", loss, prog_bar=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        loss = self.loss(y_hat, y.float())
+
+        self.log("val_loss", loss, prog_bar=True)
+
         return loss
 
     def configure_optimizers(self):
@@ -108,25 +121,27 @@ if __name__ == '__main__':
     # torchinfo.summary(model, (1, 3, config.n_frames, 128, 128))
 
 
-    # wandb.init(project="Deepfake challenge", config=config, group=yamlfile.name, entity="automathon")
-    #
+    wandb.init(project="Deepfake challenge", config=config, group=yamlfile.name, entity="automathon")
+    logger = pl.loggers.WandbLogger()
+
 
     model = Baseline(config)
 
     checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/baseline/", every_n_train_steps=2, save_top_k=1, save_last=True,
-                                 monitor="val loss", mode="min")
+                                 monitor="val_loss", mode="min")
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
 
     trainer = pl.Trainer(max_epochs=config.epoch,
                          accelerator="auto",
                          precision='16-mixed',
-                         callbacks=[checkpoint_callback],)
+                         callbacks=[checkpoint_callback],
+                         logger=logger,)
 
     train_dataset = VideoDataset(config, "../../data/raw/metadata.json")
     val_dataset = VideoDataset(config, "../../data/metadata.json")
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True, num_workers=4)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=config.batch_size, num_workers=4)
 
     trainer.fit(model, train_loader, val_loader)
 

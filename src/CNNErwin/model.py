@@ -2,16 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from .utils import (
-    round_filters,
-    round_repeats,
-    drop_connect,
-    get_same_padding_conv3d,
-    get_model_params,
-    efficientnet_params,
-    Swish,
-    MemoryEfficientSwish,
-)
+from utils import round_filters, round_repeats, drop_connect, get_same_padding_conv3d, get_model_params, efficientnet_params, Swish, MemoryEfficientSwish
 
 class MBConvBlock3D(nn.Module):
     """

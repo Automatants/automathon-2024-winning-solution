@@ -9,7 +9,8 @@ import wandb
 import torchinfo
 import os
 import json
-from torchvision.models import efficientnet_b7
+from torchvision.models import efficientnet_b3, efficientnet_b0
+# from einops import rearrange
 
 
 class VideoDataset(torch.utils.data.Dataset):
@@ -46,45 +47,13 @@ class VideoDataset(torch.utils.data.Dataset):
             print(x.shape[1], filename)
             return self.__getitem__((idx+1) % len(self))
 
-        return x.float()/255.0, y
+        x_prime1 = torch.mean(x[:, :, 1, :, :] - x[:, :, 0, :, :], dim=0)
+        x_prime2 = torch.mean(x[:, :, 2, :, :] - x[:, :, 1, :, :], dim=0)
+        x_prime3 = torch.mean(x[:, :, 3, :, :] - x[:, :, 2, :, :], dim=0)
 
+        xprime = torch.stack([x_prime1, x_prime2, x_prime3], dim=1)
 
-class CNN3d(nn.Module):
-    def __init__(self, channel_list):
-        super().__init__()
-
-        self.conv1 = nn.Conv3d(channel_list[0], channel_list[1], kernel_size=3, padding=1)
-        self.conv2 = nn.Conv3d(channel_list[1], channel_list[2], kernel_size=3, padding=1)
-        self.conv3 = nn.Conv3d(channel_list[2], channel_list[3], kernel_size=3, padding=1)
-        self.conv4 = nn.Conv3d(channel_list[3], channel_list[4], kernel_size=3, padding=1)
-        self.conv5 = nn.Conv3d(channel_list[4], channel_list[5], kernel_size=3, padding=1)
-        self.pool = nn.MaxPool3d(2)
-        self.relu = nn.ReLU()
-
-        self.bn1 = nn.BatchNorm3d(channel_list[1])
-        self.bn2 = nn.BatchNorm3d(channel_list[2])
-        self.bn3 = nn.BatchNorm3d(channel_list[3])
-        self.bn4 = nn.BatchNorm3d(channel_list[4])
-
-    def forward(self, x):
-        print("1",x.shape,"\n")
-        x = self.bn1(self.conv1(x))
-        print("2", x.shape,"\n")
-        x = self.relu(x)
-        x = self.pool(x)
-        print("3", x.shape,"\n")
-        x = self.bn2(self.conv2(x))
-        x = self.relu(x)
-        x = self.pool(x)
-        x = self.bn3(self.conv3(x))
-        x = self.relu(x)
-        x = self.pool(x)
-        x = self.bn4(self.conv4(x))
-        x = self.relu(x)
-        x = self.pool(x)
-        x = self.relu(self.conv5(x))
-        print("4", x.shape, "\n")
-        return x
+        return x.float()/255.0, xprime, y
 
 
 class PredictionHead(nn.Module):
@@ -95,12 +64,27 @@ class PredictionHead(nn.Module):
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
 
-    def forward(self, x):
+    def forward(self, x, xprime):
         print("shape", x.shape)
         x = self.flatten(x)
+        xprime = self.flatten(xprime)
+
+        x = torch.cat([x, xprime], dim=1)
+
         x = self.relu(self.linear1(x))
         x = self.linear2(x)
         return x.squeeze()
+
+
+class EfficientNetPrime(nn.Module):
+    def __init__(self):
+        super(EfficientNetPrime, self).__init__()
+        self.model = efficientnet_b0(pretrained=True)
+        self.model = nn.Sequential(*list(self.model.children())[:-1])
+
+    def forward(self, x):
+        x = self.model(x)
+        return x
 
 
 class Baseline(pl.LightningModule):
@@ -108,27 +92,31 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
 
-        self.model = efficientnet_b7(pretrained=True)
+        self.model = efficientnet_b3(pretrained=True)
         self.model = nn.Sequential(*list(self.model.children())[:-1])
-        #self.model = CNN3d(config.channels)
+
+        self.prime = EfficientNetPrime()
+
         self.head = PredictionHead()
         self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(0.3))
 
-    def forward(self, x):
-        x = x[:,:,0,:,:]
-        return self.head(self.model(x))
+    def forward(self, x, xprime):
+        x = x[:, :, 0, :, :]
+        img_features = self.model(x)
+        prime_features = self.prime(xprime)
+        return self.head(img_features, prime_features)
 
     def training_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self(x)
+        x, xprime, y = batch
+        y_hat = self(x, xprime)
         loss = self.loss(y_hat, y.float())
 
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self(x)
+        x, xprime, y = batch
+        y_hat = self(x, xprime)
         loss = self.loss(y_hat, y.float())
 
         self.log("val_loss", loss, prog_bar=True)
@@ -144,7 +132,7 @@ if __name__ == '__main__':
 
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_path', type=str, default="/raid/home/automathon_2024/account24/erwin/automathon-2024/configs/CNNErwin/config.yaml")
+    parser.add_argument('--config_path', type=str, default="../../configs/DoubleCNN/config.yaml")
 
     args = parser.parse_args()
     with open(args.config_path, 'r') as f:
@@ -159,9 +147,7 @@ if __name__ == '__main__':
 
     model = Baseline(config)
 
-    checkpoint_callback = ModelCheckpoint(dirpath="/raid/home/automathon_2024/account24/erwin/automathon-2024/checkpoints/CNNErwin/", every_n_epochs=1, save_top_k=-1)
-                                          #every_n_train_steps=2, save_top_k=1, save_last=True, 
-                                          #monitor="val_loss", mode="min")
+    checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/DoubleCNN/", every_n_epochs=1, save_top_k=-1)
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
 
     trainer = pl.Trainer(max_epochs=config.epoch,

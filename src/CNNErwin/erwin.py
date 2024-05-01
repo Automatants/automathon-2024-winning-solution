@@ -10,7 +10,7 @@ import torchinfo
 import os
 import json
 
-from torchvision.models import efficientnet_b0
+from efficientnet_pytorch import EfficientNet
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):
@@ -108,8 +108,7 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
 
-        self.model = efficientnet_b0(pretrained=True)
-        self.model._fc= torch.nn.Linear(in_features=self.model._fc.in_features, out_features=1, bias=True)
+        self.model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1) 
 
         #self.model = CNN3d(config.channels)
         #self.head = PredictionHead(config.channels[-1] * 8 * 8)

@@ -10,7 +10,7 @@ import torchinfo
 import os
 import json
 
-from torchvision.models import efficientnet_b7
+from torchvision.models import efficientnet_b3
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):
@@ -94,11 +94,12 @@ class PredictionHead(nn.Module):
         self.linear2 = nn.Linear(256, 1)
         self.relu = nn.ReLU()
         self.flatten = nn.Flatten()
+        self.dropout = nn.Dropout(p=0.2)
 
     def forward(self, x):
-        print("shape", x.shape)
         x = self.flatten(x)
         x = self.relu(self.linear1(x))
+        x = self.dropout(x)
         x = self.linear2(x)
         return x.squeeze()
 
@@ -108,7 +109,7 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
 
-        self.model = efficientnet_b7(pretrained=True)
+        self.model = efficientnet_b3(pretrained=True)
         self.model = nn.Sequential(*list(self.model.children())[:-1])
         #self.model = CNN3d(config.channels)
         self.head = PredictionHead()
@@ -159,7 +160,7 @@ if __name__ == '__main__':
 
     model = Baseline(config)
 
-    checkpoint_callback = ModelCheckpoint(dirpath="/raid/home/automathon_2024/account24/erwin/automathon-2024/checkpoints/CNNErwin/", every_n_epochs=1, save_top_k=-1)
+    checkpoint_callback = ModelCheckpoint(dirpath="/raid/home/automathon_2024/account24/erwin/automathon-2024/checkpoints/CNNErwin/", save_top_k=-1, monitor="train_loss")
                                           #every_n_train_steps=2, save_top_k=1, save_last=True, 
                                           #monitor="val_loss", mode="min")
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name

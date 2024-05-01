@@ -103,7 +103,7 @@ def main():
     video_files = [f for f in os.listdir(data_path) if f.endswith(".mp4")]
 
     for file in tqdm.tqdm(video_files):
-        print(file, flush=True)
+
         video_path = os.path.join(data_path, file)
         save_path = os.path.join(destination_path, file.replace(".mp4", ".pt"))
 

@@ -56,6 +56,7 @@ class CNN3d(nn.Module):
         self.conv1 = nn.Conv3d(channel_list[0], channel_list[1], kernel_size=3, padding=1)
         self.conv1_2d = nn.Sequential(
             nn.Conv2d(channel_list[1], channel_list[1], kernel_size=3, padding=1),
+            nn.BatchNorm2d(channel_list[1]),
             nn.ReLU(),
             nn.Conv2d(channel_list[1], channel_list[1], kernel_size=3, padding=1),
         )
@@ -63,6 +64,7 @@ class CNN3d(nn.Module):
         self.conv2 = nn.Conv3d(channel_list[1], channel_list[2], kernel_size=3, padding=1)
         self.conv2_2d = nn.Sequential(
             nn.Conv2d(channel_list[2], channel_list[2], kernel_size=3, padding=1),
+            nn.BatchNorm2d(channel_list[2]),
             nn.ReLU(),
             nn.Conv2d(channel_list[2], channel_list[2], kernel_size=3, padding=1),
         )
@@ -73,6 +75,7 @@ class CNN3d(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Conv2d(channel_list[3], channel_list[3], kernel_size=3),
+            nn.BatchNorm2d(channel_list[3]),
             nn.MaxPool2d(2),
             nn.ReLU(),
             nn.Conv2d(channel_list[3], channel_list[3], kernel_size=3),
@@ -103,7 +106,6 @@ class CNN3d(nn.Module):
         x = rearrange(x, '(b t) c h w -> b c t h w', b=batch_size)
         x = self.pool(x)
         return x
-
 
 
 class PredictionHead(nn.Module):

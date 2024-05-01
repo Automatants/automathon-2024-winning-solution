@@ -12,7 +12,7 @@ import os
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_path', type=str, default="../../configs/CNN3D-vanilla/config.yaml")
+    parser.add_argument('--config_path', type=str, default="/raid/home/automathon_2024/account24/erwin/automathon-2024/configs/CNNErwin/config.yaml")
     parser.add_argument('--checkpoint_path', type=str)
     args = parser.parse_args()
 
@@ -24,8 +24,8 @@ if __name__ == '__main__':
     model.eval()
     model.to(device)
 
-    sample_submission = pd.read_csv("../../data/sample_submission.csv") # id, ...
-    datasetcsv = pd.read_csv("../../data/dataset.csv")  # id, file
+    sample_submission = pd.read_csv("/raid/home/automathon_2024/account24/data/sample_submission.csv") # id, ...
+    datasetcsv = pd.read_csv("/raid/home/automathon_2024/account24/data/dataset.csv")  # id, file
 
     id_to_file = {row['id']: row['file'] for _, row in datasetcsv.iterrows()}
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         video_id = row['id']
         file = id_to_file[video_id]
         file = file[:-4] + ".pt"
-        video_path = f"../../data/processed/{file}"
+        video_path = f"/raid/home/automathon_2024/account24/data/processed3/{file}"
 
         if not os.path.exists(video_path):
             # sample_submission.loc[i, 'label'] = 1
@@ -51,4 +51,4 @@ if __name__ == '__main__':
         sample_submission.loc[i, 'label'] = y_hat.item()
         print(f"{i}, {video_id}, {y_hat.item()}")
 
-    sample_submission.to_csv("submission.csv", index=False)
+    sample_submission.to_csv("/raid/home/automathon_2024/account24/erwin/submission.csv", index=False)

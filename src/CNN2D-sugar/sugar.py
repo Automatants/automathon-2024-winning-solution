@@ -151,6 +151,7 @@ if __name__ == '__main__':
 
     checkpoint_callback = ModelCheckpoint(dirpath="../../checkpoints/CNN2D-sugar/", every_n_train_steps=2, save_top_k=1, save_last=True,
                                           monitor="val_loss", mode="min")
+    
     checkpoint_callback.CHECKPOINT_NAME_LAST = yamlfile.name
 
     trainer = pl.Trainer(max_epochs=config.epoch,

@@ -10,7 +10,7 @@ import torchinfo
 import os
 import json
 
-from torchvision.models import efficientnet_b7
+from torchvision.models import efficientnet_b0
 
 class VideoDataset(torch.utils.data.Dataset):
     def __init__(self, config, metadata_path):
@@ -108,13 +108,16 @@ class Baseline(pl.LightningModule):
         super(Baseline, self).__init__()
         self.config = config
 
-        self.model = CNN3d(config.channels)
-        self.head = PredictionHead(config.channels[-1] * 8 * 8)
+        self.model = efficientnet_b0(pretrained=True)
+        self.model._fc= torch.nn.Linear(in_features=self.model._fc.in_features, out_features=1, bias=True)
+
+        #self.model = CNN3d(config.channels)
+        #self.head = PredictionHead(config.channels[-1] * 8 * 8)
         self.loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(0.3))
 
     def forward(self, x):
-        return self.head(self.model(x))
-        #return self.model(x)
+        x = x[:,:,0,:,:]
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
